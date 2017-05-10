@@ -265,15 +265,16 @@ public class ListFragment extends Fragment implements LocationListener {
     @Override
     public void onResume() {
         super.onResume();
+        MySqlHelper mySqlHelper = new MySqlHelper(getActivity());
+        Cursor cursor = mySqlHelper.getReadableDatabase().query(DBConstants.searchTableName, null, null, null, null, null, null);
         if (IsSavedInstance == null) {
 
 
             if (places != null) {
                 refresfList();
-            }else {
+            }else if (cursor.getCount()!=0){
                 places=new ArrayList<>();
-                MySqlHelper mySqlHelper = new MySqlHelper(getActivity());
-                Cursor cursor = mySqlHelper.getReadableDatabase().query(DBConstants.searchTableName, null, null, null, null, null, null);
+
                 while (cursor.moveToNext()) {
                     String name = cursor.getString(cursor.getColumnIndex(DBConstants.NameColumn));
                     String formatted_address = cursor.getString(cursor.getColumnIndex(DBConstants.AddressColumn));
@@ -291,6 +292,8 @@ public class ListFragment extends Fragment implements LocationListener {
                 }
                 myPlacesAdapter = new MyPlacesAdapter(places, getActivity(),(FragmentChanger)getActivity(), lat, lng);
                 myRV.setAdapter(myPlacesAdapter);
+            }else {
+                Toast.makeText(getActivity(), "first time app", Toast.LENGTH_SHORT).show();
             }
 
         }

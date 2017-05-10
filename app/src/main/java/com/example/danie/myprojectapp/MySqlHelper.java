@@ -19,10 +19,10 @@ public class MySqlHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String SQLCreateFavoriteTable="CREATE TABLE "+ DBConstants.tableName+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+ DBConstants.NameColumn+" TEXT,  "+DBConstants.AddressColumn+" TEXT,  "+DBConstants.LatColumn+" TEXT , "+DBConstants.LngColumn+" TEXT,"+DBConstants.imageColumn +"TEXT )";
+        String SQLCreateFavoriteTable="CREATE TABLE "+ DBConstants.tableName+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+ DBConstants.NameColumn+" TEXT,  "+DBConstants.AddressColumn+" TEXT,  "+DBConstants.LatColumn+" TEXT , "+DBConstants.LngColumn+" TEXT, "+DBConstants.imageColumn +" TEXT )";
         db.execSQL(SQLCreateFavoriteTable);
 
-        String SQLCreateLastSearchResults="CREATE TABLE "+ DBConstants.searchTableName+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+ DBConstants.NameColumn+" TEXT,  "+DBConstants.AddressColumn+" TEXT,  "+DBConstants.LatColumn+" TEXT , "+DBConstants.LngColumn+" TEXT,"+DBConstants.imageColumn +"TEXT )";
+        String SQLCreateLastSearchResults="CREATE TABLE "+ DBConstants.searchTableName+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, "+ DBConstants.NameColumn+" TEXT,  "+DBConstants.AddressColumn+" TEXT,  "+DBConstants.LatColumn+" TEXT , "+DBConstants.LngColumn+" TEXT, "+DBConstants.imageColumn +" TEXT )";
         db.execSQL(SQLCreateLastSearchResults);
 
 
