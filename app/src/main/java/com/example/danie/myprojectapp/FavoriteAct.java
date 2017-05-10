@@ -14,7 +14,7 @@ public class FavoriteAct extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite);
 
-
+//
         MySqlHelper mySqlHelper = new MySqlHelper(this);
 
         Cursor cursor = mySqlHelper.getReadableDatabase().query(DBConstants.tableName, null , null , null , null , null , null);

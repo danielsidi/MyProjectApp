@@ -7,4 +7,5 @@ package com.example.danie.myprojectapp;
 public class location {
     double lat;
     double lng;
+    //
 }
