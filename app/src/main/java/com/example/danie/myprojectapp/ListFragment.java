@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
@@ -14,6 +15,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -60,7 +62,7 @@ public class ListFragment extends Fragment implements LocationListener {
     CheckBox nerbyCB;
     RecyclerView myRV;
     String searchWord;
-    Double lat, lng;
+    double lat, lng;
     LocationManager locationManager;
     Location currentLocation;
     int permissionCheck;
@@ -160,15 +162,28 @@ public class ListFragment extends Fragment implements LocationListener {
         {
 
             myRV.setLayoutManager(new LinearLayoutManager(getActivity()));
-            ArrayList<Place> landscape = new ArrayList<>();
-            landscape=savedInstanceState.getParcelableArrayList("places");
-            lat = savedInstanceState.getDouble("lat");
-            lng = savedInstanceState.getDouble("lng");
+            if (savedInstanceState.containsKey("places")) {
+                ArrayList<Place> landscape = new ArrayList<>();
+                landscape = savedInstanceState.getParcelableArrayList("places");
+                lat = savedInstanceState.getDouble("lat");
+                lng = savedInstanceState.getDouble("lng");
 
-            places=landscape;
-            myPlacesAdapter = new MyPlacesAdapter(places, getActivity(), (FragmentChanger) getActivity(), lat, lng);
-            myRV.setAdapter(myPlacesAdapter);
+                places = landscape;
+                myPlacesAdapter = new MyPlacesAdapter(places, getActivity(), (FragmentChanger) getActivity(), lat, lng);
+                myRV.setAdapter(myPlacesAdapter);
+            }else{
+                //rotation happend on map
+               getLastSearch();
+            }
 
+        } else {
+
+            if (places != null) {
+                refresfList();
+            } else {
+               getLastSearch();
+
+            }
         }
 
 
@@ -176,13 +191,64 @@ public class ListFragment extends Fragment implements LocationListener {
         return view;
     }
 
+    private void getLastSearch() {
+        //Check Connection
+        CheckConnection checkConnection = new CheckConnection(getActivity());
+        if (checkConnection.isNetworkAvailable()) {
+
+            //new search
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 
+            Intent intent = new Intent(getActivity(), MyIntentService.class);
+            intent.putExtra("searchWord", preferences.getString("lastSearch", ""));
+            intent.putExtra("lat", lat);
+            intent.putExtra("lng", lng);
+            intent.setAction(preferences.getString("action", "isChecked"));
 
+            getActivity().startService(intent);
+
+
+        } else {
+            MySqlHelper mySqlHelper = new MySqlHelper(getActivity());
+            Cursor cursor = mySqlHelper.getReadableDatabase().query(DBConstants.searchTableName, null, null, null, null, null, null);
+//            if (IsSavedInstance == null) {
+
+
+                if (places != null) {
+                    refresfList();
+                } else if (cursor.getCount() != 0) {
+                    places = new ArrayList<>();
+
+                    while (cursor.moveToNext()) {
+                        String name = cursor.getString(cursor.getColumnIndex(DBConstants.NameColumn));
+                        String formatted_address = cursor.getString(cursor.getColumnIndex(DBConstants.AddressColumn));
+                        String vicinity = cursor.getString(cursor.getColumnIndex(DBConstants.AddressColumn));
+                        double lat = Double.parseDouble(cursor.getString(cursor.getColumnIndex(DBConstants.LatColumn)));
+                        double lng = Double.parseDouble(cursor.getString(cursor.getColumnIndex(DBConstants.LngColumn)));
+                        //     String photo = cursor.getString(cursor.getColumnIndex(DBConstants.imageColumn));
+
+
+                        places.add(new Place(name, formatted_address, lat, lng, "", vicinity));
+
+                    }
+                    myRV.setLayoutManager(new LinearLayoutManager(getActivity()));
+                    myPlacesAdapter = new MyPlacesAdapter(places, getActivity(), (FragmentChanger) getActivity(), lat, lng);
+                    myRV.setAdapter(myPlacesAdapter);
+                } else {
+                    Toast.makeText(getActivity(), "first time app", Toast.LENGTH_SHORT).show();
+                }
+
+ //           }
+
+        }
+
+    }
 
 
     @Override
     public void onLocationChanged(Location location) {
+
 
             lat = location.getLatitude();
             lng = location.getLongitude();
@@ -265,39 +331,6 @@ public class ListFragment extends Fragment implements LocationListener {
     @Override
     public void onResume() {
         super.onResume();
-        MySqlHelper mySqlHelper = new MySqlHelper(getActivity());
-        Cursor cursor = mySqlHelper.getReadableDatabase().query(DBConstants.searchTableName, null, null, null, null, null, null);
-        if (IsSavedInstance == null) {
-
-
-            if (places != null) {
-                refresfList();
-            }else if (cursor.getCount()!=0){
-                places=new ArrayList<>();
-
-                while (cursor.moveToNext()) {
-                    String name = cursor.getString(cursor.getColumnIndex(DBConstants.NameColumn));
-                    String formatted_address = cursor.getString(cursor.getColumnIndex(DBConstants.AddressColumn));
-                    String vicinity = cursor.getString(cursor.getColumnIndex(DBConstants.AddressColumn));
-                    double lat = Double.parseDouble(cursor.getString(cursor.getColumnIndex(DBConstants.LatColumn)));
-                    double lng = Double.parseDouble(cursor.getString(cursor.getColumnIndex(DBConstants.LngColumn)));
-               //     String photo = cursor.getString(cursor.getColumnIndex(DBConstants.imageColumn));
-
-                    places.add(new Place(name,formatted_address,lat,lng,"",vicinity));
-
-
-
-
-
-                }
-                myPlacesAdapter = new MyPlacesAdapter(places, getActivity(),(FragmentChanger)getActivity(), lat, lng);
-                myRV.setAdapter(myPlacesAdapter);
-            }else {
-                Toast.makeText(getActivity(), "first time app", Toast.LENGTH_SHORT).show();
-            }
-
-        }
-
 
     }
 

@@ -3,8 +3,11 @@ package com.example.danie.myprojectapp;
 import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ListView;
@@ -21,8 +24,10 @@ import okhttp3.Response;
 
 public class MyIntentService extends IntentService {
 
+
     public MyIntentService() {
         super("MyIntentService");
+
     }
 
     @Override
@@ -36,9 +41,9 @@ public class MyIntentService extends IntentService {
 
         String url="";
         if (action == "isNotChecked")
-            url="https://maps.googleapis.com/maps/api/place/textsearch/json?query="+searchWord+"&key=AIzaSyCp2ExjzXlQ1CP7W8pGYzRgsV6enzuGyJQ";
+            url="https://maps.googleapis.com/maps/api/place/textsearch/json?query="+searchWord+"&key=AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A";
         else if (action == "isChecked")
-            url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=2000&keyword="+searchWord+"&key=AIzaSyCp2ExjzXlQ1CP7W8pGYzRgsV6enzuGyJQ";
+            url="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+lat+","+lng+"&radius=2000&keyword="+searchWord+"&key=AIzaSyAdl51G7iH0wF46jQGLsMoNXQeuYl6l5_A";
 
         DownlaodJson downlaodJson = new DownlaodJson();
         String response = null;
@@ -55,6 +60,8 @@ public class MyIntentService extends IntentService {
         Log.d ("Dsdfsf",  ""+allplaces.size());
 
         ContentValues contentValues = new ContentValues();
+        MySqlHelper mySqlHelper = new MySqlHelper(this);
+        mySqlHelper.getWritableDatabase().delete(DBConstants.searchTableName, null , null);
         for (int i = 0; i < allplaces.size() ; i++) {
             contentValues.put(DBConstants.NameColumn , allplaces.get(i).name);
             if (allplaces.get(i).vicinity == null) {
@@ -64,19 +71,19 @@ public class MyIntentService extends IntentService {
             }
             contentValues.put(DBConstants.LatColumn, allplaces.get(i).geometry.location.lat);
             contentValues.put(DBConstants.LngColumn, allplaces.get(i).geometry.location.lng);
-            contentValues.put(DBConstants.imageColumn,allplaces.get(i).photos.get(0).photo_reference);
+            if (allplaces.get(i).photos != null) {
+                contentValues.put(DBConstants.imageColumn, allplaces.get(i).photos.get(0).photo_reference);
+            }
 
-
-            MySqlHelper mySqlHelper = new MySqlHelper(this);
             mySqlHelper.getWritableDatabase().insert(DBConstants.searchTableName, null, contentValues);
 
+
+
+
         }
-
-
-
-
-
-
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        preferences.edit().putString("lastSearch", searchWord);
+        preferences.edit().putString("action" , action);
 
 
 

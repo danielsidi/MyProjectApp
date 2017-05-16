@@ -32,6 +32,11 @@ public class Place implements Parcelable {
         this.lng = lng;
         this.photo = photo;
         this.vicinity = vicinity;
+        geometry geometry = new geometry();
+        geometry.location=new location();
+        geometry.location.lng=lng;
+        geometry.location.lat = lat;
+        this.geometry=geometry;
     }
 
     public static final Creator<Place> CREATOR = new Creator<Place>() {

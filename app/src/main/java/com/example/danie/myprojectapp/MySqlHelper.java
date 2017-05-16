@@ -26,6 +26,9 @@ public class MySqlHelper extends SQLiteOpenHelper {
         db.execSQL(SQLCreateLastSearchResults);
 
 
+
+
+
     }
 
     @Override

@@ -168,13 +168,14 @@ public class MyPlacesAdapter extends  RecyclerView.Adapter<MyPlacesAdapter.MyPla
 
                                     contentValues.put(DBConstants.LatColumn, myItemPlace.geometry.location.lat);
                                     contentValues.put(DBConstants.LngColumn, myItemPlace.geometry.location.lng);
-                                   // ContentValues.put(DBConstants.imageColumn, myItemPlace.photos.get(0).photo_reference);
-
+                                    if (myItemPlace.photos != null) {
+                                        contentValues.put(DBConstants.imageColumn, myItemPlace.photos.get(0).photo_reference);
+                                    }
                                     MySqlHelper mySqlHelper = new MySqlHelper(context);
 
                                     mySqlHelper.getWritableDatabase().insert(DBConstants.tableName, null, contentValues);
 
-                                    Toasty.success(context, "ADD", Toast.LENGTH_SHORT, true).show();
+                                    Toasty.success(context, "ADDED", Toast.LENGTH_SHORT, true).show();
 
 
                                     break;

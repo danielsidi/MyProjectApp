@@ -8,7 +8,6 @@
 
         />
 
-
     <Preference
         android:title="Delete Favorites"
         android:key="DeleteFavoritesP"

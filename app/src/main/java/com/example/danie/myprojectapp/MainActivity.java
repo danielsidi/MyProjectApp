@@ -15,6 +15,7 @@ import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -115,22 +116,46 @@ if (getFragmentManager().findFragmentByTag("frag") == null) {
     @Override
     public void changeFragments(final Place place) {
         MapFragment mapFragment = new MapFragment();
-        FragmentTransaction transaction= getFragmentManager().beginTransaction();
-        transaction.addToBackStack("change map");
-        transaction.replace(R.id.MainActivityID , mapFragment).commit();
 
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
+        if (isLargeDevice()) {
 
-                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                LatLng latLng = new LatLng(place.geometry.location.lat , place.geometry.location.lng);
-                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 17);
-                googleMap.addMarker(new MarkerOptions().position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                googleMap.moveCamera(update);
-            }
-        });
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.addToBackStack("change map");
+            transaction.replace(R.id.rightCotainer, mapFragment).commit();
+
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+
+                    //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    LatLng latLng = new LatLng(place.geometry.location.lat, place.geometry.location.lng);
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+                    googleMap.addMarker(new MarkerOptions().position(latLng)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    googleMap.moveCamera(update);
+                }
+            });
+
+
+        } else {
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.addToBackStack("change map");
+            transaction.replace(R.id.MainActivityID, mapFragment).commit();
+
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+
+                    //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    LatLng latLng = new LatLng(place.geometry.location.lat, place.geometry.location.lng);
+                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+                    googleMap.addMarker(new MarkerOptions().position(latLng)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    googleMap.moveCamera(update);
+                }
+            });
+        }
     }
 
     @Override
@@ -150,6 +175,20 @@ if (getFragmentManager().findFragmentByTag("frag") == null) {
     }
 
 
+
+
+    private boolean isLargeDevice()
+    {
+        boolean isLarge=false;
+        LinearLayout rightLayout=(LinearLayout) findViewById(R.id.rightCotainer);
+        if(rightLayout != null)
+        {
+            isLarge=true;
+        }
+        return isLarge;
+    }
+
+
     public static class myReceiverBattery extends BroadcastReceiver{
 
         @Override
@@ -162,5 +201,7 @@ if (getFragmentManager().findFragmentByTag("frag") == null) {
             }
         }
     }
+
+
 
 }
